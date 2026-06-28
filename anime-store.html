@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKIRA DROP — Аниме мерч</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0D0D12;
+    --card-bg:   #16162A;
+    --surface:   #1E1E38;
+    --text:      #F0E6FF;
+    --muted:     #7A7A9D;
+    --accent:    #C084FC;
+    --pink:      #FF6B9D;
+    --border:    rgba(192, 132, 252, 0.18);
+    --radius:    16px;
+    --transition: 0.3s cubic-bezier(.4,0,.2,1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(13, 13, 18, 0.72);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.25rem;
+    letter-spacing: 0.12em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex; gap: 32px; list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted); font-size: 0.875rem; font-weight: 500;
+    text-decoration: none; letter-spacing: 0.04em;
+    transition: color var(--transition);
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn-cart {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    color: var(--text); font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .btn-cart:hover { background: var(--accent); border-color: var(--accent); color: #0D0D12; }
+  .btn-cart svg { width: 16px; height: 16px; }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 40px 80px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 55% at 65% 45%, rgba(192,132,252,0.13) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 70%, rgba(255,107,157,0.09) 0%, transparent 65%);
+  }
+
+  .hero-grid-lines {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.04;
+    background-image:
+      linear-gradient(var(--accent) 1px, transparent 1px),
+      linear-gradient(90deg, var(--accent) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-inner {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 60px; align-items: center;
+    max-width: 1240px; margin: 0 auto; width: 100%;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px;
+    background: rgba(192,132,252,0.1);
+    border: 1px solid rgba(192,132,252,0.3);
+    border-radius: 40px;
+    font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 5.5vw, 4.4rem);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  .hero-title .line-accent { color: var(--accent); }
+  .hero-title .line-pink { color: var(--pink); }
+
+  /* Glitch effect */
+  .glitch {
+    position: relative; display: inline-block;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    font-family: inherit; font-size: inherit; font-weight: inherit;
+    color: inherit; background: transparent;
+    pointer-events: none;
+  }
+  .glitch::before {
+    color: var(--pink);
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+    transform: translate(-2px, 0);
+    animation: glitch-a 4s steps(1) infinite;
+  }
+  .glitch::after {
+    color: var(--accent);
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+    transform: translate(2px, 0);
+    animation: glitch-b 4s steps(1) infinite;
+  }
+  @keyframes glitch-a {
+    0%,90%,100% { transform: translate(0); opacity: 0; }
+    92% { transform: translate(-3px, 1px); opacity: 1; }
+    94% { transform: translate(2px, -1px); opacity: 1; }
+    96% { transform: translate(0); opacity: 0; }
+  }
+  @keyframes glitch-b {
+    0%,90%,100% { transform: translate(0); opacity: 0; }
+    93% { transform: translate(3px, -1px); opacity: 1; }
+    95% { transform: translate(-2px, 1px); opacity: 1; }
+    97% { transform: translate(0); opacity: 0; }
+  }
+
+  .hero-desc {
+    color: var(--muted); font-size: 1.05rem; font-weight: 300;
+    max-width: 420px; margin-bottom: 40px; line-height: 1.7;
+  }
+
+  .hero-cta {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 14px 30px;
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 40px;
+    color: #0D0D12; font-family: 'Inter', sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    text-decoration: none; cursor: pointer;
+    transition: all var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    opacity: 0; transition: opacity var(--transition);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(192,132,252,0.35); }
+  .btn-primary:hover::after { opacity: 1; }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 14px 30px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    text-decoration: none; cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-secondary:hover {
+    background: var(--surface);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex; gap: 32px; margin-top: 52px; padding-top: 36px;
+    border-top: 1px solid var(--border);
+  }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.6rem; color: var(--text);
+  }
+  .stat-label {
+    font-size: 0.78rem; color: var(--muted);
+    letter-spacing: 0.04em; margin-top: 2px;
+  }
+
+  /* Hero visual */
+  .hero-visual {
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+  }
+
+  .hero-card-big {
+    width: 100%; max-width: 380px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .hero-card-img {
+    width: 100%; aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+    background: linear-gradient(135deg, #1a1a3a 0%, #2d1b69 50%, #1a0a2e 100%);
+    position: relative;
+  }
+
+  .hero-card-img-inner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8rem; user-select: none;
+    background: linear-gradient(135deg, #1a1a3a 0%, #2d1b69 50%, #1a0a2e 100%);
+  }
+
+  .hero-card-badge {
+    position: absolute; top: 16px; left: 16px;
+    padding: 5px 12px;
+    background: var(--pink);
+    border-radius: 40px;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: #fff;
+  }
+
+  .hero-card-info {
+    padding: 20px 22px 22px;
+  }
+  .hero-card-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+  .hero-card-info .price {
+    font-size: 1.15rem; font-weight: 600;
+    color: var(--accent);
+  }
+
+  .hero-float-tag {
+    position: absolute;
+    padding: 8px 14px;
+    background: rgba(30,30,56,0.9);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    font-size: 0.78rem; font-weight: 500;
+    white-space: nowrap;
+  }
+  .tag-1 { top: 20px; right: -40px; }
+  .tag-2 { bottom: 60px; right: -50px; color: var(--accent); border-color: rgba(192,132,252,0.4); }
+  .tag-3 { bottom: 20px; left: -30px; }
+
+  /* ─── CATALOG SECTION ─── */
+  .catalog {
+    padding: 100px 40px;
+    max-width: 1240px; margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 52px;
+    gap: 20px;
+  }
+
+  .section-label {
+    display: inline-block;
+    font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .catalog-filters {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-btn {
+    padding: 8px 18px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    color: var(--muted); font-family: 'Inter', sans-serif;
+    font-size: 0.82rem; font-weight: 500;
+    cursor: pointer; transition: all var(--transition);
+  }
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0D0D12;
+  }
+
+  /* ─── PRODUCT GRID ─── */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    cursor: pointer;
+    group: true;
+  }
+
+  .product-card::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 0;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(192,132,252,0.06), rgba(255,107,157,0.04));
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(192,132,252,0.35);
+    border-color: rgba(192,132,252,0.4);
+  }
+  .product-card:hover::before { opacity: 1; }
+
+  .card-img-wrap {
+    position: relative;
+    aspect-ratio: 3/3.8;
+    overflow: hidden;
+  }
+
+  .card-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4.5rem;
+  }
+
+  .card-emoji {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4.5rem;
+    transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .product-card:hover .card-emoji { transform: scale(1.08); }
+
+  .card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,13,18,0.85) 0%, transparent 50%);
+    opacity: 0; transition: opacity var(--transition);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 16px;
+  }
+
+  .product-card:hover .card-overlay { opacity: 1; }
+
+  .overlay-btn {
+    padding: 10px 22px;
+    background: var(--accent);
+    border: none; border-radius: 40px;
+    color: #0D0D12; font-family: 'Inter', sans-serif;
+    font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.02em;
+    transform: translateY(8px);
+    transition: transform var(--transition);
+  }
+  .product-card:hover .overlay-btn { transform: translateY(0); }
+
+  .card-badge {
+    position: absolute; top: 12px; left: 12px;
+    padding: 3px 10px;
+    border-radius: 40px;
+    font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+  }
+  .badge-new { background: var(--accent); color: #0D0D12; }
+  .badge-hot { background: var(--pink); color: #fff; }
+  .badge-limited { background: rgba(255,200,80,0.9); color: #1a0a00; }
+
+  .card-wishlist {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px;
+    background: rgba(13,13,18,0.7);
+    border: 1px solid var(--border);
+    border-radius: 50%; display: flex;
+    align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .card-wishlist:hover { background: var(--pink); border-color: var(--pink); }
+
+  .card-body {
+    padding: 16px 18px 18px;
+    position: relative; z-index: 1;
+    flex: 1; display: flex; flex-direction: column;
+  }
+
+  .card-series {
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 5px;
+  }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.97rem;
+    line-height: 1.25; margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .card-footer {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+
+  .card-price {
+    font-weight: 700; font-size: 1.05rem;
+    color: var(--text);
+  }
+  .card-price-old {
+    font-size: 0.8rem; color: var(--muted);
+    text-decoration: line-through; margin-left: 6px;
+  }
+
+  .card-rating {
+    font-size: 0.78rem; color: var(--muted);
+  }
+  .card-rating span { color: #FFD700; margin-right: 3px; }
+
+  /* ─── FOOTER BANNER ─── */
+  .footer-banner {
+    margin: 0 40px 80px;
+    padding: 60px 60px;
+    background: linear-gradient(135deg, #1a1040 0%, #2d1b69 50%, #1a0a2e 100%);
+    border: 1px solid rgba(192,132,252,0.2);
+    border-radius: 24px;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 40px;
+    position: relative; overflow: hidden;
+  }
+  .footer-banner::after {
+    content: '';
+    position: absolute; right: -60px; top: -60px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(192,132,252,0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .banner-text h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(1.4rem, 2.5vw, 2rem);
+    margin-bottom: 8px;
+  }
+  .banner-text p { color: var(--muted); font-size: 0.95rem; }
+
+  .banner-input-wrap {
+    display: flex; gap: 10px;
+    position: relative; z-index: 1;
+  }
+  .banner-input {
+    padding: 13px 18px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(192,132,252,0.25);
+    border-radius: 40px;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    outline: none; width: 220px;
+    transition: border-color var(--transition);
+  }
+  .banner-input:focus { border-color: var(--accent); }
+  .banner-input::placeholder { color: var(--muted); }
+
+  /* ─── PRODUCT CARD BACKGROUNDS ─── */
+  .bg-1 { background: linear-gradient(135deg, #0f0a1e, #1e1040, #0d0d1e); }
+  .bg-2 { background: linear-gradient(135deg, #0a1a0f, #0d2818, #091208); }
+  .bg-3 { background: linear-gradient(135deg, #1a0a10, #2d0a1a, #150614); }
+  .bg-4 { background: linear-gradient(135deg, #0a0f1a, #0d1630, #080d18); }
+  .bg-5 { background: linear-gradient(135deg, #1a150a, #2d2010, #181008); }
+  .bg-6 { background: linear-gradient(135deg, #0f0a1e, #260d3a, #100a1e); }
+  .bg-7 { background: linear-gradient(135deg, #0a1818, #0d2828, #081515); }
+  .bg-8 { background: linear-gradient(135deg, #1a0f0a, #2d1810, #180c08); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1100px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+    .tag-1, .tag-2, .tag-3 { display: none; }
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+
+    .hero { padding: 100px 24px 60px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+    .hero-visual { order: -1; }
+    .hero-card-big { max-width: 300px; }
+    .hero-stats { gap: 20px; }
+    .hero-desc { max-width: 100%; }
+
+    .catalog { padding: 60px 24px; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+    .footer-banner {
+      margin: 0 24px 60px;
+      padding: 40px 28px;
+      flex-direction: column; align-items: flex-start;
+    }
+    .banner-input-wrap { width: 100%; }
+    .banner-input { flex: 1; }
+  }
+
+  @media (max-width: 480px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .card-body { padding: 12px 12px 14px; }
+    .card-name { font-size: 0.85rem; }
+    .hero-cta { flex-direction: column; }
+    .btn-primary, .btn-secondary { text-align: center; justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">AKIRA<span>DROP</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Каталог</a></li>
+    <li><a href="#">Новинки</a></li>
+    <li><a href="#">Серии</a></li>
+    <li><a href="#">О нас</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#" class="btn-cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Корзина (0)
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">Дроп недели</div>
+      <h1 class="hero-title">
+        <span class="glitch" data-text="МЕРЧ">МЕРЧ</span><br>
+        <span class="line-accent">НОВОГО</span><br>
+        <span class="line-pink">ПОКОЛЕНИЯ</span>
+      </h1>
+      <p class="hero-desc">
+        Эксклюзивные фигурки, одежда и аксессуары по твоим любимым сериям. Ограниченные дропы каждую неделю.
+      </p>
+      <div class="hero-cta">
+        <a href="#catalog" class="btn-primary">
+          Смотреть каталог
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="btn-secondary">Последний дроп</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-value">4 200+</div>
+          <div class="stat-label">Позиций в каталоге</div>
+        </div>
+        <div>
+          <div class="stat-value">180+</div>
+          <div class="stat-label">Серий и франшиз</div>
+        </div>
+        <div>
+          <div class="stat-value">48 ч</div>
+          <div class="stat-label">Доставка по РФ</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card-big">
+        <div class="hero-card-img">
+          <div class="hero-card-img-inner">🌸</div>
+        </div>
+        <div class="hero-card-badge">Limited</div>
+        <div class="hero-card-info">
+          <h3>Фигурка Sakura Haruno — Shippuden Ver.</h3>
+          <div class="price">4 990 ₽</div>
+        </div>
+      </div>
+      <div class="hero-float-tag tag-1">🔥 Раскупают быстро</div>
+      <div class="hero-float-tag tag-2">★ 4.9 / 312 отзывов</div>
+      <div class="hero-float-tag tag-3">📦 Осталось 7 шт.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="catalog" id="catalog">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Хиты сезона</div>
+      <h2 class="section-title">Популярные позиции</h2>
+    </div>
+    <div class="catalog-filters">
+      <button class="filter-btn active">Все</button>
+      <button class="filter-btn">Фигурки</button>
+      <button class="filter-btn">Одежда</button>
+      <button class="filter-btn">Аксессуары</button>
+    </div>
+  </div>
+
+  <div class="product-grid">
+
+    <!-- Card 1 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-1">⚡</div>
+        <div class="card-badge badge-hot">Hot</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Demon Slayer</div>
+        <div class="card-name">Рэнгоку Кёджуро — Flame Hashira Figure</div>
+        <div class="card-footer">
+          <div><span class="card-price">3 490 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.8</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-2">🌿</div>
+        <div class="card-badge badge-new">New</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Attack on Titan</div>
+        <div class="card-name">Худи Levi Ackerman — Survey Corps</div>
+        <div class="card-footer">
+          <div><span class="card-price">5 200 ₽</span><span class="card-price-old">6 500 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.7</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-3">🌙</div>
+        <div class="card-badge badge-limited">Limited</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Chainsaw Man</div>
+        <div class="card-name">Makima — Premium Scale Figure 1/7</div>
+        <div class="card-footer">
+          <div><span class="card-price">8 990 ₽</span></div>
+          <div class="card-rating"><span>★</span>5.0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-4">🐉</div>
+        <div class="card-badge badge-new">New</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Jujutsu Kaisen</div>
+        <div class="card-name">Рюкзак Gojo Satoru — Infinity Edition</div>
+        <div class="card-footer">
+          <div><span class="card-price">2 890 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-5">🔮</div>
+        <div class="card-badge badge-hot">Hot</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Evangelion</div>
+        <div class="card-name">Rei Ayanami — Anno Cut Nendoroid</div>
+        <div class="card-footer">
+          <div><span class="card-price">4 100 ₽</span><span class="card-price-old">4 800 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.9</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-6">🦋</div>
+        <div class="card-badge badge-new">New</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Spy × Family</div>
+        <div class="card-name">Anya Forger — Heh Face Plushie XL</div>
+        <div class="card-footer">
+          <div><span class="card-price">1 790 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.9</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 7 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-7">🎋</div>
+        <div class="card-badge badge-limited">Limited</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">One Piece</div>
+        <div class="card-name">Zoro Roronoa — Enma Sword Statue</div>
+        <div class="card-footer">
+          <div><span class="card-price">7 650 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.8</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 8 -->
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <div class="card-emoji bg-8">🌺</div>
+        <div class="card-badge badge-hot">Hot</div>
+        <div class="card-wishlist">♡</div>
+        <div class="card-overlay">
+          <button class="overlay-btn">В корзину</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-series">Bleach</div>
+        <div class="card-name">Ichigo Kurosaki — Bankai Cap Snapback</div>
+        <div class="card-footer">
+          <div><span class="card-price">2 350 ₽</span><span class="card-price-old">2 900 ₽</span></div>
+          <div class="card-rating"><span>★</span>4.7</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER BANNER -->
+<div class="footer-banner">
+  <div class="banner-text">
+    <h2>Узнавай о дропах первым</h2>
+    <p>Подпишись — получи 10% на первый заказ.</p>
+  </div>
+  <div class="banner-input-wrap">
+    <input type="email" class="banner-input" placeholder="твой@email.ru">
+    <button class="btn-primary">Подписаться</button>
+  </div>
+</div>
+
+<script>
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Wishlist toggle
+  document.querySelectorAll('.card-wishlist').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      btn.textContent = btn.textContent === '♡' ? '♥' : '♡';
+      btn.style.background = btn.textContent === '♥' ? 'var(--pink)' : '';
+      btn.style.borderColor = btn.textContent === '♥' ? 'var(--pink)' : '';
+    });
+  });
+</script>
+
+</body>
+</html>
